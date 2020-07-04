@@ -11,7 +11,7 @@ from networks import LinearPolicy
 """
 Configuration parameters
 """
-train_bs           = 64
+train_bs           = 16
 num_workers        = 8
 roots              = [ "/home/gparmar/Desktop/github_gaparmar/CarSimulator/output/expert_0",
                         "/home/gparmar/Desktop/github_gaparmar/CarSimulator/output/expert_1",
@@ -19,8 +19,8 @@ roots              = [ "/home/gparmar/Desktop/github_gaparmar/CarSimulator/outpu
                         "/home/gparmar/Desktop/github_gaparmar/CarSimulator/output/expert_3",
                         "/home/gparmar/Desktop/github_gaparmar/CarSimulator/output/expert_4",
                      ]
-train_epochs       = 200
-train_lr           = 0.0005
+train_epochs       = 500
+train_lr           = 0.0002
 
 
 
@@ -46,16 +46,19 @@ for epoch in range(train_epochs):
     policy = policy.train()
     train_loss = 0.0
     for idx, batch in enumerate(dl_train, 1):
-        # pdb.set_trace()
+        # Make all the gradients zero
         opt.zero_grad()
         img = batch["image"].cuda()
+        # predict throttle / steer using current weights
         pred_throttle, pred_steer = policy(img)
+        # Computer Mean Squared Difference
         mse_loss = F.mse_loss(pred_throttle.view(-1), batch["throttle"].to(device))
         mse_loss += F.mse_loss(pred_steer.view(-1), batch["steer"].to(device))
+        # Compute the gradients of the MSE w.r.t the model weights
         mse_loss.backward()
+        # upate model weights using the gradient
         opt.step()
         train_loss += mse_loss.item()
-        # pbar.set_description(f"epoch:{epoch:3d}\tit:{idx:4d}\ttrain_loss:{mse_loss.item():.2f}\t\t")
     train_loss = train_loss/len(ds_train)
     L_train.append(train_loss)
 
@@ -73,7 +76,7 @@ for epoch in range(train_epochs):
     L_test.append(test_loss)
 
     print(f"{epoch}:: total train_loss: {train_loss}\ttest_loss: {test_loss}")
-    if epoch%20 == 0:
+    if epoch%50 == 0:
         # save model 
         torch.save(policy.state_dict(), f"model_{epoch}.sd")
 

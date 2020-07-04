@@ -1,5 +1,8 @@
 # ImitationLearning
 
+## 0. Setup
+ - 
+
 ## 1. Collect Expert trajectories using simulator here
  - https://github.com/GaParmar/CarSimulator
 
