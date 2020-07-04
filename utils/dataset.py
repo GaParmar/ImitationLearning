@@ -23,6 +23,8 @@ class CarDataset(Dataset):
             self.all_files = self.all_files[0:int(len(self.all_files)*0.9)]
         elif split == "test":
             self.all_files = self.all_files[int(len(self.all_files)*0.9):]
+        elif split == "both":
+            pass
         self.transform_image = transforms.ToTensor()
     
     def __len__(self):

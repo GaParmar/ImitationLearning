@@ -1,3 +1,5 @@
 *.sd
 .tmp/*
 unitylog.txt
+output/*
+*/__pycache__/*
